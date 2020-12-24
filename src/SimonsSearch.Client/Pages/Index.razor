@@ -1,0 +1,65 @@
+﻿@page "/"
+@using SimonsSearch.Client.Clients
+@using SimonsSearch.Client.Common
+@using SimonsSearch.Client.Models
+@inject SearchClient SearchClient
+<h1 class="app-title">Simons Search</h1>
+
+
+<section class="pb-2">
+    <Table Responsive="true">
+        <TableRow>
+            <TableRowCell>
+                <Addons>
+                    <Addon AddonType="AddonType.Body">
+                        <TextEdit @bind-Text="@searchQuery"/>
+                    </Addon>
+                    <Addon AddonType="AddonType.End">
+                        <Button Color="Color.Primary" Loading="@_loading" Clicked="@SearchOnClicked">Search</Button>
+                    </Addon>
+                </Addons>
+            </TableRowCell>
+        </TableRow>
+    </Table>
+</section>
+
+@if (_searchResult?.Any() ?? false)
+{
+    <Table Striped="true" Responsive="true">
+        <TableHeader ThemeContrast="ThemeContrast.Dark">
+            <TableRow>
+                <TableHeaderCell>@TextConstants.NameCellText</TableHeaderCell>
+                <TableHeaderCell>@TextConstants.InformationCellText</TableHeaderCell>
+                <TableHeaderCell>@TextConstants.TypeCellText</TableHeaderCell>
+            </TableRow>
+        </TableHeader>
+        <TableBody>
+            @foreach (var result in _searchResult)
+            {
+                <TableRow>
+                    <TableRowCell>@result.Name</TableRowCell>
+                    <TableRowCell>@result.Metadata</TableRowCell>
+                    <TableRowCell>@result.Type</TableRowCell>
+                </TableRow>
+            }
+        </TableBody>
+    </Table>
+}
+
+@code
+{
+    private readonly List<SearchResultModel> _searchResult = new List<SearchResultModel>();
+    string searchQuery;
+    bool _loading = false;
+
+    private async Task SearchOnClicked()
+    {
+        _loading = true;
+        _searchResult.Clear();
+
+        var result = await SearchClient.SearchAsync(searchQuery);
+
+        _searchResult.AddRange(result);
+        _loading = false;
+    }
+}
