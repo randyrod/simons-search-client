@@ -6,21 +6,17 @@
 <h1 class="app-title">Simons Search</h1>
 
 
-<section class="pb-2">
-    <Table Responsive="true">
-        <TableRow>
-            <TableRowCell>
-                <Addons>
-                    <Addon AddonType="AddonType.Body">
-                        <TextEdit @bind-Text="@searchQuery"/>
-                    </Addon>
-                    <Addon AddonType="AddonType.End">
-                        <Button Color="Color.Primary" Loading="@_loading" Clicked="@SearchOnClicked">Search</Button>
-                    </Addon>
-                </Addons>
-            </TableRowCell>
-        </TableRow>
-    </Table>
+<section>
+    <Container Margin="Margin.Is5.FromRight.Is4.FromTop.Is4.FromBottom">
+        <Row>
+            <Column>
+                <TextEdit @bind-Text="@searchQuery" KeyUp="@OnKeyUp"/>
+            </Column>
+            <Column>
+                <Button Color="Color.Primary" @bind-Loading="@_loading" Clicked="@SearchOnClicked">Search</Button>
+            </Column>
+        </Row>
+    </Container>
 </section>
 
 @if (_searchResult?.Any() ?? false)
@@ -53,6 +49,19 @@
     bool _loading = false;
 
     private async Task SearchOnClicked()
+    {
+        await PerformSearch();
+    }
+
+    private async Task OnKeyUp(KeyboardEventArgs obj)
+    {
+        if (obj.Code == "Enter")
+        {
+            await PerformSearch();
+        }
+    }
+
+    private async Task PerformSearch()
     {
         _loading = true;
         _searchResult.Clear();
